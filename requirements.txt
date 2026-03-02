@@ -1,0 +1,26 @@
+# Meta-analysis of insecticide resistance in Aedes albopictus
+# Python dependencies
+
+# Data manipulation
+pandas>=2.0
+numpy>=1.24
+openpyxl>=3.1
+
+# Statistics
+scipy>=1.10
+statsmodels>=0.14
+
+# Visualization
+matplotlib>=3.7
+seaborn>=0.12
+forestplot>=0.4
+plotly>=5.15
+
+# Geographic mapping
+geopandas>=0.13
+
+# Network analysis (cross-resistance)
+networkx>=3.1
+
+# Machine learning (clustering)
+scikit-learn>=1.3

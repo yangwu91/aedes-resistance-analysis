@@ -1,0 +1,26 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Data files (not redistributed; share via OSF/Zenodo)
+data/
+*.csv
+*.xlsx
+
+# Generated outputs
+figures/
+outputs/
