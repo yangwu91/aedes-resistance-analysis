@@ -142,10 +142,10 @@ def run_wls_regression(
         coefs.append({
             "moderator": moderator_name,
             "term": name,
-            "coefficient": np.round(float(results.params[i]), 6),
-            "se": np.round(float(results.bse[i]), 6),
-            "z_value": np.round(float(results.tvalues[i]), 3),
-            "p_value": np.round(float(results.pvalues[i]), 4),
+            "coefficient": np.round(float(results.params.iloc[i]), 6),
+            "se": np.round(float(results.bse.iloc[i]), 6),
+            "z_value": np.round(float(results.tvalues.iloc[i]), 3),
+            "p_value": np.round(float(results.pvalues.iloc[i]), 4),
         })
 
     return {

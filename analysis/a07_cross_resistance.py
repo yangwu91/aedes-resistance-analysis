@@ -164,10 +164,11 @@ def method1_correlation_matrix(df: pd.DataFrame, fig_dir: Path) -> pd.DataFrame:
     ci_lower_matrix = pd.DataFrame(np.nan, index=all_classes, columns=all_classes)
     ci_upper_matrix = pd.DataFrame(np.nan, index=all_classes, columns=all_classes)
 
-    # Fill diagonal
-    np.fill_diagonal(corr_matrix.values, 1.0)
-    np.fill_diagonal(ci_lower_matrix.values, 1.0)
-    np.fill_diagonal(ci_upper_matrix.values, 1.0)
+    # Fill diagonal (iloc avoids read-only array in pandas 2.x)
+    for i in range(len(all_classes)):
+        corr_matrix.iloc[i, i] = 1.0
+        ci_lower_matrix.iloc[i, i] = 1.0
+        ci_upper_matrix.iloc[i, i] = 1.0
 
     for c1, c2 in class_pairs:
         observations = pair_data[(c1, c2)]
@@ -283,8 +284,9 @@ def _plot_correlation_heatmap(corr_matrix: pd.DataFrame, fig_dir: Path):
     # Fill remaining NaN with 0 for clustering (no observed relationship)
     plot_data = valid.fillna(0).astype(float)
 
-    # Ensure symmetry
-    np.fill_diagonal(plot_data.values, 1.0)
+    # Ensure symmetry (iloc avoids read-only array in pandas 2.x)
+    for i in range(len(plot_data)):
+        plot_data.iloc[i, i] = 1.0
 
     try:
         g = sns.clustermap(
