@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/1170797454.svg)](https://doi.org/10.5281/zenodo.18884262)
+
 # Analysis Scripts: Resistance Management Strategies for *Aedes albopictus*
 
 Scripts supporting the study:
@@ -122,7 +124,9 @@ Edit `analysis/config.py` to adjust:
 ## Citation
 
 If you use these scripts, please cite the associated manuscript (details
-to be added upon publication).
+to be added upon publication) and the archived code:
+
+> Analysis code (v1.0.0). Zenodo. https://doi.org/10.5281/zenodo.18884263
 
 ---
 
