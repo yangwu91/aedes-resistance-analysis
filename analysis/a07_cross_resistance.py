@@ -275,18 +275,29 @@ def method1_correlation_matrix(df: pd.DataFrame, fig_dir: Path) -> pd.DataFrame:
 
 def _plot_correlation_heatmap(corr_matrix: pd.DataFrame, fig_dir: Path):
     """Plot a clustered heatmap of the correlation matrix."""
-    # Drop classes that have no valid correlations
     valid = corr_matrix.dropna(axis=0, how="all").dropna(axis=1, how="all")
     if valid.shape[0] < 2:
         print("  [WARNING] Not enough classes for clustering. Skipping heatmap.")
         return
 
-    # Fill remaining NaN with 0 for clustering (no observed relationship)
     plot_data = valid.fillna(0).astype(float)
-
-    # Ensure symmetry (iloc avoids read-only array in pandas 2.x)
     for i in range(len(plot_data)):
         plot_data.iloc[i, i] = 1.0
+
+    label_map = {
+        "Biological": "BIO", "Carbamate": "CAR", "IGR": "IGR",
+        "Organochlorine": "OC", "Organophosphate": "OP",
+        "Pyrethroid": "PYR", "Neonicotinoid": "NEO", "Other": "OTH",
+    }
+    plot_data = plot_data.rename(index=label_map, columns=label_map)
+
+    n = len(plot_data)
+    cell_size = 0.30
+    dendro_ratio = 0.12
+    heatmap_size = n * cell_size
+    total_size = heatmap_size / (1 - dendro_ratio)
+    fig_w = total_size + 1.0
+    fig_h = total_size + 0.3
 
     try:
         g = sns.clustermap(
@@ -296,18 +307,34 @@ def _plot_correlation_heatmap(corr_matrix: pd.DataFrame, fig_dir: Path):
             center=0,
             annot=True,
             fmt=".2f",
-            linewidths=0.5,
+            annot_kws={"size": 7},
+            linewidths=0.8,
             linecolor="white",
-            figsize=(max(8, len(plot_data) * 1.2), max(6, len(plot_data) * 1.0)),
-            dendrogram_ratio=(0.15, 0.15),
-            cbar_kws={"label": "Pooled Spearman r (Fisher z)"},
+            figsize=(fig_w, fig_h),
+            dendrogram_ratio=(dendro_ratio, dendro_ratio),
+            cbar_pos=None,
             method="average",
             metric="euclidean",
         )
-        g.ax_heatmap.set_title("Cross-resistance: Pooled correlation matrix\n"
-                               "(hierarchical clustering)", pad=20, fontweight="bold")
+        g.ax_heatmap.set_aspect("equal")
         g.ax_heatmap.set_xlabel("")
         g.ax_heatmap.set_ylabel("")
+        g.ax_heatmap.set_xticklabels(
+            g.ax_heatmap.get_xticklabels(), rotation=45, ha="right", fontsize=8)
+        g.ax_heatmap.set_yticklabels(
+            g.ax_heatmap.get_yticklabels(), rotation=0, fontsize=8)
+
+        g.fig.subplots_adjust(right=0.72)
+        hm_pos = g.ax_heatmap.get_position()
+        cbar_h = hm_pos.height * 0.6
+        cbar_y = hm_pos.y0 + (hm_pos.height - cbar_h) / 2
+        cbar_ax = g.fig.add_axes([0.88, cbar_y, 0.03, cbar_h])
+        sm = plt.cm.ScalarMappable(cmap="RdBu_r", norm=plt.Normalize(-1, 1))
+        sm.set_array([])
+        cbar = g.fig.colorbar(sm, cax=cbar_ax, orientation="vertical")
+        cbar.set_label("Spearman r", fontsize=8)
+        cbar.set_ticks([-1, -0.5, 0, 0.5, 1])
+        cbar.ax.tick_params(labelsize=7)
 
         out_path = fig_dir / "correlation_heatmap.png"
         g.savefig(str(out_path), dpi=FIGURE_DPI, bbox_inches="tight")
@@ -315,26 +342,6 @@ def _plot_correlation_heatmap(corr_matrix: pd.DataFrame, fig_dir: Path):
         print(f"  Heatmap saved: {out_path}")
     except Exception as e:
         print(f"  [WARNING] Could not generate clustermap: {e}")
-        # Fallback: simple heatmap without clustering
-        fig, ax = plt.subplots(figsize=(max(8, len(plot_data) * 1.2),
-                                        max(6, len(plot_data) * 1.0)))
-        sns.heatmap(
-            plot_data,
-            vmin=-1, vmax=1,
-            cmap="RdBu_r",
-            center=0,
-            annot=True,
-            fmt=".2f",
-            linewidths=0.5,
-            linecolor="white",
-            cbar_kws={"label": "Pooled Spearman r (Fisher z)"},
-            ax=ax,
-        )
-        ax.set_title("Cross-resistance: Pooled correlation matrix", fontweight="bold")
-        out_path = fig_dir / "correlation_heatmap.png"
-        fig.savefig(str(out_path), dpi=FIGURE_DPI, bbox_inches="tight")
-        plt.close(fig)
-        print(f"  Heatmap (fallback) saved: {out_path}")
 
 
 # ======================================================================
